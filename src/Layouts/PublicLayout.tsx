@@ -1,5 +1,6 @@
 import { FunctionComponent } from "react";
 import { Link, Route, RouteProps } from "react-router-dom";
+import userManager from "../configuration";
 
 interface PublicLayoutProps {}
 
@@ -16,6 +17,12 @@ const PublicLayout: FunctionComponent<PublicLayoutProps> = ({ children }) => {
             </li>
             <li>
               <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/report">Report</Link>
+            </li>
+            <li>
+              <button onClick={() => userManager.signoutRedirect()}>Çıkış</button>
             </li>
           </ul>
         </nav>

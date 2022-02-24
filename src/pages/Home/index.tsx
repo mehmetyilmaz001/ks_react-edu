@@ -1,25 +1,18 @@
 import React from "react";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setList } from "../../redux/reducers/TodoReducer";
+import { Store } from "../../redux/store";
 import NewTodoForm from "./components/NewTodoForm";
 import TodoItem from "./components/TodoItem";
 
 
 interface HomeProps {}
 
-interface Todo {
-  title: string;
-  completed: boolean;
-  date: number;
-}
-
-const initialTodos: Todo[] = [
-  { title: "Learn React", completed: false, date: Date.now() + 1 },
-  { title: "Learn TypeScript", completed: false, date: Date.now() + 2 },
-  { title: "Learn Next.js", completed: false, date: Date.now() + 3 },
-];
 
 const Home: FunctionComponent<HomeProps> = () => {
-  const [list, setList] = useState<Todo[]>(initialTodos);
+  const dispatch = useDispatch();
+  const list = useSelector( (s: Store) => s.todo.list)
 
   return (
     <>
@@ -38,6 +31,7 @@ const Home: FunctionComponent<HomeProps> = () => {
             key={i.date}
             title={i.title}
             date={i.date}
+            completed={i.completed}
             onEdit={(id) => {
               const promptVal = window.prompt("Todo güncelle", i.title);
 
@@ -46,8 +40,8 @@ const Home: FunctionComponent<HomeProps> = () => {
                 const foundIndex = newList.findIndex((f) => f.date === i.date);
 
                 if (foundIndex > -1) {
-                  newList[foundIndex].title = promptVal;
-                  setList(newList);
+                  newList[foundIndex] = {...newList[foundIndex], title:promptVal};
+                  dispatch(setList(newList));
                 }
               }
             }}
@@ -56,15 +50,15 @@ const Home: FunctionComponent<HomeProps> = () => {
               const foundIndex = newList.findIndex((f) => f.date === i.date);
 
               if (foundIndex > -1) {
-                newList[foundIndex].completed = checked;
-                setList(newList);
+                newList[foundIndex] = {...newList[foundIndex], completed: checked};
+                dispatch(setList(newList));
               }
             }}
             onDelete={(id) => {
               const confirmResult = window.confirm("Emin misiniz?");
               if (confirmResult) {
                 const newList = list.filter((i) => i.date !== id);
-                setList(newList);
+                dispatch(setList(newList));
               }
             }}
           />
@@ -72,10 +66,8 @@ const Home: FunctionComponent<HomeProps> = () => {
       </ul>
       <NewTodoForm
         onNewTodo={(title) => {
-          setList((_list) => [
-            ..._list,
-            { title, completed: false, date: Date.now() },
-          ]);
+          const newList = [...list, { title, completed: false, date: Date.now()}]
+          dispatch(setList(newList))
         }}
       />
     </>

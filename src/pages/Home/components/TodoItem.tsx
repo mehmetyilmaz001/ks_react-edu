@@ -1,14 +1,13 @@
 import { FC } from "react";
+import { Todo } from "../../../model/Todo";
 
-interface ITodoItem {
-    title: string;
-    date: number;
+interface ITodoItem extends Todo {
     onCheck: (checked: boolean) => void;
     onDelete: (id: number) => void;
     onEdit: (id: number) => void;
   }
   
-  const TodoItem: FC<ITodoItem> = ({ title, date, onDelete, onCheck, onEdit }) => {
+  const TodoItem: FC<ITodoItem> = ({ title, date, completed, onDelete, onCheck, onEdit }) => {
     const formItemId = `todo-checkbox-${date}`;
     return (
       <li style={{ display: "flex", justifyContent: 'space-between' }}>
@@ -17,6 +16,7 @@ interface ITodoItem {
           <input 
             type={"checkbox"} 
             id={formItemId} 
+            checked={completed}
             onChange={(e) => onCheck(e.target.checked)} />
 
           <label htmlFor={formItemId}>

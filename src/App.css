@@ -24,3 +24,6 @@ footer{
   padding: 20px;
   background-color: aliceblue;
 }
+
+thead{background-color: aliceblue;}
+th{text-align: left;}

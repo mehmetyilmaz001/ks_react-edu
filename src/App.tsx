@@ -2,11 +2,15 @@ import "./App.css";
 import { Route, Router, Switch } from "react-router-dom";
 import history from "./history";
 import { PublicRoute } from "./Layouts/PublicLayout";
+import { AdminRoute } from "./Layouts/AdminLayout";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import { Callback, makeAuthenticator } from "react-oidc";
 import userManager from "./configuration";
-import { FC } from "react";
+import { FC, useEffect } from "react";
+import Report from './pages/Report/index';
+import { useDispatch } from 'react-redux';
+import { setUser } from "./redux/reducers/AuthReducer";
 
 const Routes: FC = () => (
   <>
@@ -17,6 +21,10 @@ const Routes: FC = () => (
     <PublicRoute exact path="/about">
       <About />
     </PublicRoute>
+    
+    <AdminRoute exact path="/report">
+      <Report />
+    </AdminRoute>
   </>
 );
 
@@ -26,6 +34,21 @@ const AppWithAuth = makeAuthenticator({
 })(Routes);
 
 function App() {
+  const dispatch = useDispatch();
+
+  const fetchuser = async () => {
+    const user = await userManager.getUser()
+    
+    if(user){
+      dispatch(setUser(user));
+    }
+  }
+  
+  useEffect(() => {
+    fetchuser();
+  }, [])
+
+
   return (
     <Router history={history}>
       <Switch>
@@ -34,6 +57,8 @@ function App() {
         render={routeProps => (
           <Callback
             onSuccess={user => {
+              dispatch(setUser(user));
+              console.log("user", user)
               routeProps.history.push('/')
             }}
             
