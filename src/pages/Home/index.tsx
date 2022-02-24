@@ -1,18 +1,56 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FunctionComponent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setList } from "../../redux/reducers/TodoReducer";
 import { Store } from "../../redux/store";
 import NewTodoForm from "./components/NewTodoForm";
 import TodoItem from "./components/TodoItem";
-
+import { Todo } from "../../model/Todo";
 
 interface HomeProps {}
 
-
 const Home: FunctionComponent<HomeProps> = () => {
-  const dispatch = useDispatch();
-  const list = useSelector( (s: Store) => s.todo.list)
+  const kargocu = useDispatch();
+  const list = useSelector((s: Store) => s.todo.list);
+
+  const fetchTodos = async () => {
+    const response = await fetch(
+      "https://mocki.io/v1/0210f24c-027b-4700-b84e-51158669147b"
+    );
+    const data = await response.json();
+    console.log(data);
+    // dispatch(setList(data));
+  };
+  // const postTodo  = async(todo: Todo) => {
+  //   const response = await fetch("https://mocki.io/v1/0210f24c-027b-4700-b84e-51158669147b", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify(todo)
+  //   });
+
+  //   const data = await response.json();
+
+  //   console.log("post", data);
+
+  //   // dispatch(setList(data));
+  // }
+
+  // Did mount
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  // Did mount & update
+  useEffect(() => {
+    console.log("list", list);
+  }, [list]);
+
+  // Did unmount
+  useEffect(() => {
+    return () => console.log("unmount");
+  }, []);
 
   return (
     <>
@@ -40,8 +78,11 @@ const Home: FunctionComponent<HomeProps> = () => {
                 const foundIndex = newList.findIndex((f) => f.date === i.date);
 
                 if (foundIndex > -1) {
-                  newList[foundIndex] = {...newList[foundIndex], title:promptVal};
-                  dispatch(setList(newList));
+                  newList[foundIndex] = {
+                    ...newList[foundIndex],
+                    title: promptVal,
+                  };
+                  kargocu(setList(newList));
                 }
               }
             }}
@@ -50,15 +91,18 @@ const Home: FunctionComponent<HomeProps> = () => {
               const foundIndex = newList.findIndex((f) => f.date === i.date);
 
               if (foundIndex > -1) {
-                newList[foundIndex] = {...newList[foundIndex], completed: checked};
-                dispatch(setList(newList));
+                newList[foundIndex] = {
+                  ...newList[foundIndex],
+                  completed: checked,
+                };
+                kargocu(setList(newList));
               }
             }}
             onDelete={(id) => {
               const confirmResult = window.confirm("Emin misiniz?");
               if (confirmResult) {
                 const newList = list.filter((i) => i.date !== id);
-                dispatch(setList(newList));
+                kargocu(setList(newList));
               }
             }}
           />
@@ -66,8 +110,11 @@ const Home: FunctionComponent<HomeProps> = () => {
       </ul>
       <NewTodoForm
         onNewTodo={(title) => {
-          const newList = [...list, { title, completed: false, date: Date.now()}]
-          dispatch(setList(newList))
+          const newItem = { title, completed: false, date: Date.now() };
+          const newList = [...list, newItem];
+          kargocu(setList(newList));
+
+          // postTodo(newItem);
         }}
       />
     </>
