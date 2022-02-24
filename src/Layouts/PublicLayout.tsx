@@ -21,7 +21,7 @@ const PublicLayout: FunctionComponent<PublicLayoutProps> = ({ children }) => {
         </nav>
       </header>
 
-      <main>{children}</main>
+      <main style={{width: '80%', margin: 'auto'}}>{children}</main>
 
       <footer>
         <p>&copy; {new Date().getFullYear()}</p>

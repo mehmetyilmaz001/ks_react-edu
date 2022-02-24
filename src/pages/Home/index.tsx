@@ -1,4 +1,6 @@
-import { FC, FunctionComponent, useState } from "react";
+import { FunctionComponent, useState } from "react";
+import NewTodoForm from "./components/NewTodoForm";
+import TodoItem from "./components/TodoItem";
 
 interface HomeProps {}
 
@@ -9,54 +11,71 @@ interface Todo {
 }
 
 const initialTodos: Todo[] = [
-  { title: "Learn React", completed: false, date: Date.now() },
-  { title: "Learn TypeScript", completed: false, date: Date.now() },
-  { title: "Learn Next.js", completed: false, date: Date.now() },
+  { title: "Learn React", completed: false, date: Date.now() + 1 },
+  { title: "Learn TypeScript", completed: false, date: Date.now() + 2 },
+  { title: "Learn Next.js", completed: false, date: Date.now() + 3 },
 ];
 
 const Home: FunctionComponent<HomeProps> = () => {
   const [list, setList] = useState<Todo[]>(initialTodos);
-  const [title, setTitle] = useState<string>("");
-
-  const addTodo = () => {
-    if (title) {
-      setList((_list) => [
-        ..._list,
-        { title, completed: false, date: Date.now() },
-      ]);
-
-      setTitle("");
-    }
-  };
 
   return (
     <>
       <h1>Home</h1>
-      <p>Toplam {list.length} adet todo var.</p>
-      <ul>
+      <span>Toplam: {list.length} adet todo var.</span> <br />
+      <span>
+        Tamamlanmış: {list.filter((i) => i.completed).length} adet todo var.
+      </span>{" "}
+      <br />
+      <span>
+        Tamamlanmamış: {list.filter((i) => !i.completed).length} adet todo var.
+      </span>
+      <ul style={{ width: 500 }}>
         {list.map((i) => (
           <TodoItem
+            key={i.date}
             title={i.title}
             date={i.date}
-            onCheck={() => {}}
-            onDelete={() => {}}
+            onEdit={(id) => {
+              const promptVal = window.prompt("Todo güncelle", i.title);
+
+              if (promptVal) {
+                const newList = [...list];
+                const foundIndex = newList.findIndex((f) => f.date === i.date);
+
+                if (foundIndex > -1) {
+                  newList[foundIndex].title = promptVal;
+                  setList(newList);
+                }
+              }
+            }}
+            onCheck={(checked) => {
+              const newList = [...list];
+              const foundIndex = newList.findIndex((f) => f.date === i.date);
+
+              if (foundIndex > -1) {
+                newList[foundIndex].completed = checked;
+                setList(newList);
+              }
+            }}
+            onDelete={(id) => {
+              const confirmResult = window.confirm("Emin misiniz?");
+              if (confirmResult) {
+                const newList = list.filter((i) => i.date !== id);
+                setList(newList);
+              }
+            }}
           />
         ))}
       </ul>
-
-      <div style={{ display: "flex" }}>
-        <input
-          type={"text"}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              addTodo();
-            }
-          }}
-        />
-        <button onClick={() => addTodo()}>Yeni Todo Ekle</button>
-      </div>
+      <NewTodoForm
+        onNewTodo={(title) => {
+          setList((_list) => [
+            ..._list,
+            { title, completed: false, date: Date.now() },
+          ]);
+        }}
+      />
     </>
   );
 
@@ -66,25 +85,3 @@ const Home: FunctionComponent<HomeProps> = () => {
 };
 
 export default Home;
-
-interface ITodoItem {
-  title: string;
-  date: number;
-  onCheck: () => void;
-  onDelete: () => void;
-}
-
-const TodoItem: FC<ITodoItem> = ({ title, date }) => {
-  return (
-    <li style={{ display: "flex" }}>
-      <input type={"checkbox"} />
-      <span>
-        {title} <i>{date}</i>
-      </span>
-      <div style={{ marginLeft: 8 }}>
-        <button>Düzenle</button>
-        <button>Sil</button>
-      </div>
-    </li>
-  );
-};
